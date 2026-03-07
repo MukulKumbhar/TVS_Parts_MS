@@ -5,7 +5,7 @@
 // ── Config ────────────────────────────────────────────────────────────────────
 const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000'
-  : 'https://tvs-parts-api.onrender.com'; // ← Replace with your Render URL
+  : 'https://tvs-parts-ms.onrender.com'; // ← Replace with your Render URL
 
 // ── Auth Guard ────────────────────────────────────────────────────────────────
 const token = localStorage.getItem('tvs_token');
