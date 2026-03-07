@@ -25,7 +25,10 @@ app.use(helmet({
 // ── CORS ──────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  'http://localhost:5500',  // Local dev (Live Server)
+  'https://tvs-parts-ms.vercel.app',
+  'https://tvs-parts-ms.onrender.com',
+  'http://localhost:3000',
+  'http://localhost:5500',
   'http://127.0.0.1:5500'
 ].filter(Boolean);
 
