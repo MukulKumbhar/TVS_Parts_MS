@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TVS Parts — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .auth-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+      animation: slideUp 0.4s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to   { transform: translateY(0);   opacity: 1; }
+    }
+    .logo-area { text-align: center; margin-bottom: 2rem; }
+    .logo-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #2563EB, #7C3AED);
+      border-radius: 16px; margin-bottom: 1rem;
+      font-size: 1.8rem; color: #fff; font-weight: 800;
+      box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+    }
+    .logo-title { font-size: 1.4rem; font-weight: 800; color: #0F172A; }
+    .logo-sub   { font-size: 0.85rem; color: #6B7280; margin-top: 2px; }
+
+    .tabs { display: flex; background: #F0F4FF; border-radius: 12px; padding: 4px; margin-bottom: 1.5rem; }
+    .tab-btn {
+      flex: 1; padding: 0.6rem; border: none; background: transparent;
+      border-radius: 8px; cursor: pointer; font-family: inherit;
+      font-size: 0.9rem; font-weight: 600; color: #6B7280; transition: all .2s;
+    }
+    .tab-btn.active { background: #fff; color: #2563EB; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+    .form-section { display: none; }
+    .form-section.active { display: block; }
+
+    .field { margin-bottom: 1rem; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+    input {
+      width: 100%; padding: 0.7rem 1rem;
+      border: 1.5px solid #E2E8F0; border-radius: 10px;
+      font-family: inherit; font-size: 0.95rem; color: #0F172A;
+      background: #F8FAFC; outline: none; transition: border .2s;
+    }
+    input:focus { border-color: #2563EB; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+    .btn-primary {
+      width: 100%; padding: 0.85rem;
+      background: linear-gradient(135deg, #2563EB, #1D4ED8);
+      color: #fff; border: none; border-radius: 12px;
+      font-family: inherit; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all .2s; margin-top: 0.5rem;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(37,99,235,0.4); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      background: #FEF2F2; border: 1px solid #FECACA;
+      color: #DC2626; padding: 0.7rem 1rem; border-radius: 8px;
+      font-size: 0.85rem; margin-bottom: 1rem; display: none;
+    }
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer-note { text-align: center; font-size: 0.78rem; color: #9CA3AF; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <div class="logo-area">
+      <div class="logo-badge">TVS</div>
+      <div class="logo-title">TVS Parts System</div>
+      <div class="logo-sub">Authorized Dealership Management</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <div class="form-section active" id="tab-login">
+      <div class="error-msg" id="login-error"></div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="Enter username" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password"/>
+      </div>
+      <button class="btn-primary" id="login-btn" onclick="handleLogin()">
+        <span id="login-label">Sign In</span>
+        <div class="spinner" id="login-spinner"></div>
+      </button>
+    </div>
+
+    <!-- Register Form -->
+    <div class="form-section" id="tab-register">
+      <div class="error-msg" id="register-error"></div>
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="reg-name" placeholder="Your full name"/>
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="reg-username" placeholder="Choose a username"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="Min 6 characters"/>
+      </div>
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" id="reg-confirm" placeholder="Re-enter password"/>
+      </div>
+      <button class="btn-primary" id="register-btn" onclick="handleRegister()">
+        <span id="register-label">Create Account</span>
+        <div class="spinner" id="register-spinner"></div>
+      </button>
+    </div>
+
+    <div class="footer-note">TVS Parts Management System v1.0 &copy; 2024</div>
+  </div>
+
+  <script>
+    const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3000'
+      : 'https://tvs-parts-api.onrender.com'; // ← Update with your Render URL
+
+    // Redirect if already logged in
+    if (localStorage.getItem('tvs_token')) window.location.href = '/index.html';
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach((b, i) =>
+        b.classList.toggle('active', (i === 0) === (tab === 'login')));
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    }
+
+    function setLoading(formId, loading) {
+      const btn = document.getElementById(`${formId}-btn`);
+      const lbl = document.getElementById(`${formId}-label`);
+      const spn = document.getElementById(`${formId}-spinner`);
+      btn.disabled = loading;
+      lbl.style.display = loading ? 'none' : 'inline';
+      spn.style.display = loading ? 'block' : 'none';
+    }
+
+    function showError(formId, msg) {
+      const el = document.getElementById(`${formId}-error`);
+      el.textContent = msg; el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 5000);
+    }
+
+    async function handleLogin() {
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+      if (!username || !password) return showError('login', 'Please enter username and password.');
+
+      setLoading('login', true);
+      try {
+        const res = await fetch(`${API}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (!res.ok) return showError('login', data.error || 'Login failed.');
+        localStorage.setItem('tvs_token', data.token);
+        localStorage.setItem('tvs_user',  JSON.stringify(data.user));
+        window.location.href = '/index.html';
+      } catch (e) {
+        showError('login', 'Cannot connect to server. Please try again.');
+      } finally {
+        setLoading('login', false);
+      }
+    }
+
+    async function handleRegister() {
+      const name           = document.getElementById('reg-name').value.trim();
+      const username       = document.getElementById('reg-username').value.trim();
+      const password       = document.getElementById('reg-password').value;
+      const confirmPassword= document.getElementById('reg-confirm').value;
+      if (!name || !username || !password) return showError('register', 'All fields required.');
+
+      setLoading('register', true);
+      try {
+        const res = await fetch(`${API}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, username, password, confirmPassword })
+        });
+        const data = await res.json();
+        if (!res.ok) return showError('register', data.error || 'Registration failed.');
+        alert('Account created! You can now log in.');
+        switchTab('login');
+      } catch (e) {
+        showError('register', 'Cannot connect to server.');
+      } finally {
+        setLoading('register', false);
+      }
+    }
+
+    // Allow Enter key
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      if (document.getElementById('tab-login').classList.contains('active')) handleLogin();
+      else handleRegister();
+    });
+  </script>
+</body>
+</html>

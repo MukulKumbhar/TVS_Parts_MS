@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TVS Parts Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <!-- CDN Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <!-- Lucide Icons — unpkg is more reliable than cdnjs for this package -->
+  <script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-badge">TVS</div>
+      <div>
+        <div class="sidebar-logo-title">Parts System</div>
+        <div class="sidebar-logo-sub">Dealership Portal</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </a>
+      <a class="nav-item" onclick="showPage('bikes')" data-page="bikes">
+        <i data-lucide="bike"></i><span>Bikes</span>
+      </a>
+      <a class="nav-item" onclick="showPage('parts')" data-page="parts">
+        <i data-lucide="package"></i><span>Inventory</span>
+      </a>
+      <a class="nav-item" onclick="showPage('billing')" data-page="billing">
+        <i data-lucide="receipt"></i><span>New Bill</span>
+      </a>
+      <a class="nav-item" onclick="showPage('bills')" data-page="bills">
+        <i data-lucide="file-text"></i><span>Bill History</span>
+      </a>
+      <a class="nav-item" onclick="showPage('lowstock')" data-page="lowstock">
+        <i data-lucide="alert-triangle"></i><span>Low Stock</span>
+        <span class="nav-badge" id="low-badge">0</span>
+      </a>
+      <a class="nav-item" onclick="showPage('reports')" data-page="reports">
+        <i data-lucide="bar-chart-2"></i><span>Reports</span>
+      </a>
+      <a class="nav-item" onclick="showPage('search')" data-page="search">
+        <i data-lucide="search"></i><span>Part Finder</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">U</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">User</div>
+        <div class="user-role" id="user-role">staff</div>
+      </div>
+      <button class="logout-btn" onclick="logout()" title="Logout">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Mobile Header ──────────────────────────────────────────────────────── -->
+  <header class="mobile-header">
+    <button class="menu-toggle" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
+    <span class="mobile-title">TVS Parts</span>
+    <button onclick="showPage('search')"><i data-lucide="search"></i></button>
+  </header>
+
+  <!-- ── Main Content ───────────────────────────────────────────────────────── -->
+  <main class="main-content" id="main-content">
+
+    <!-- ── Dashboard Page ──────────────────────────────────────────────────── -->
+    <div class="page" id="page-dashboard">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <div class="page-subtitle" id="today-date">Today</div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card stat-blue">
+          <div class="stat-icon"><i data-lucide="indian-rupee"></i></div>
+          <div class="stat-val" id="stat-sales">₹0</div>
+          <div class="stat-label">Today's Sales</div>
+        </div>
+        <div class="stat-card stat-green">
+          <div class="stat-icon"><i data-lucide="receipt"></i></div>
+          <div class="stat-val" id="stat-bills">0</div>
+          <div class="stat-label">Bills Today</div>
+        </div>
+        <div class="stat-card stat-purple">
+          <div class="stat-icon"><i data-lucide="package"></i></div>
+          <div class="stat-val" id="stat-stock">0</div>
+          <div class="stat-label">Parts in Stock</div>
+        </div>
+        <div class="stat-card stat-amber" onclick="showPage('lowstock')" style="cursor:pointer">
+          <div class="stat-icon"><i data-lucide="alert-triangle"></i></div>
+          <div class="stat-val" id="stat-low">0</div>
+          <div class="stat-label">Low Stock Alerts</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="card">
+          <div class="card-header"><h3>Sales Trend (7 Days)</h3></div>
+          <canvas id="chart-trend" height="100"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Monthly Comparison</h3></div>
+          <canvas id="chart-monthly" height="100"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Recent Bills</h3>
+          <button class="btn-sm btn-primary" onclick="showPage('billing')">
+            <i data-lucide="plus"></i> New Bill
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Bill No.</th><th>Customer</th><th>Items</th><th>Total</th><th>Time</th></tr></thead>
+            <tbody id="recent-bills-body"><tr><td colspan="5" class="loading-cell">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bikes Page ──────────────────────────────────────────────────────── -->
+    <div class="page hidden" id="page-bikes">
+      <div class="page-header">
+        <h1 class="page-title">Bike Models</h1>
+        <button class="btn-primary" onclick="openBikeModal()">
+          <i data-lucide="plus"></i> Add Bike
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <input type="text" class="search-input" id="bike-search" placeholder="Search bikes..." oninput="filterBikes(this.value)"/>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Company</th><th>Model</th><th>Year</th><th>CC</th><th>Parts</th><th>Actions</th></tr></thead>
+            <tbody id="bikes-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Parts Page ──────────────────────────────────────────────────────── -->
+    <div class="page hidden" id="page-parts">
+      <div class="page-header">
+        <h1 class="page-title">Parts Inventory</h1>
+        <button class="btn-primary" onclick="openPartModal()">
+          <i data-lucide="plus"></i> Add Part
+        </button>
+      </div>
+      <div class="card">
+        <div class="filter-bar">
+          <input type="text" class="search-input" id="parts-search" placeholder="Search by name or part number..." oninput="debounce(loadParts, 300)()"/>
+          <select class="filter-select" id="parts-bike-filter" onchange="loadParts()">
+            <option value="">All Bikes</option>
+          </select>
+          <select class="filter-select" id="parts-cat-filter" onchange="loadParts()">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Part Name</th><th>Part No.</th><th>Bike</th><th>Location</th><th>Qty</th><th>Price</th><th>Actions</th></tr></thead>
+            <tbody id="parts-body"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="parts-pagination"></div>
+      </div>
+    </div>
+
+    <!-- ── Billing Page ────────────────────────────────────────────────────── -->
+    <div class="page hidden" id="page-billing">
+      <div class="page-header">
+        <h1 class="page-title">New Bill</h1>
+      </div>
+      <div class="billing-grid">
+        <div class="card">
+          <div class="card-header"><h3>Customer Details</h3></div>
+          <div class="field-group">
+            <div class="field"><label>Customer Name</label>
+              <input type="text" id="bill-customer" placeholder="Walk-in Customer"/></div>
+            <div class="field"><label>Phone Number</label>
+              <input type="text" id="bill-phone" placeholder="10-digit mobile"/></div>
+          </div>
+          <div class="card-header" style="margin-top:1rem"><h3>Search & Add Parts</h3></div>
+          <div style="position:relative">
+            <input type="text" id="bill-part-search" class="search-input" style="width:100%"
+                   placeholder="Type part name or number..." oninput="searchBillParts(this.value)"/>
+            <div class="dropdown-list" id="bill-part-dropdown"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Bill Items</h3>
+            <div class="bill-total-display">Total: <span id="bill-total">₹0.00</span></div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Part</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+              <tbody id="bill-items-body"><tr><td colspan="5" class="loading-cell">No items added yet</td></tr></tbody>
+            </table>
+          </div>
+          <div class="bill-actions">
+            <button class="btn-danger" onclick="clearBill()"><i data-lucide="trash-2"></i> Clear</button>
+            <button class="btn-success" onclick="submitBill()"><i data-lucide="printer"></i> Create & Print Bill</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bill History Page ───────────────────────────────────────────────── -->
+    <div class="page hidden" id="page-bills">
+      <div class="page-header">
+        <h1 class="page-title">Bill History</h1>
+        <input type="date" id="bills-date-filter" onchange="loadBills()" class="date-input"/>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Bill No.</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead>
+            <tbody id="bills-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Low Stock Page ──────────────────────────────────────────────────── -->
+    <div class="page hidden" id="page-lowstock">
+      <div class="page-header"><h1 class="page-title">Low Stock Alerts</h1></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Part Name</th><th>Location</th><th>Current Qty</th><th>Min Qty</th><th>Supplier</th><th>Action</th></tr></thead>
+            <tbody id="lowstock-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Reports Page ────────────────────────────────────────────────────── -->
+    <div class="page hidden" id="page-reports">
+      <div class="page-header">
+        <h1 class="page-title">Sales Report</h1>
+        <input type="date" id="report-date" class="date-input" onchange="loadReport()"/>
+      </div>
+      <div class="stat-grid" id="report-stats">
+        <div class="stat-card stat-blue"><div class="stat-val" id="rep-sales">₹0</div><div class="stat-label">Total Sales</div></div>
+        <div class="stat-card stat-green"><div class="stat-val" id="rep-bills">0</div><div class="stat-label">Total Bills</div></div>
+        <div class="stat-card stat-purple"><div class="stat-val" id="rep-items">0</div><div class="stat-label">Items Sold</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Bills on Selected Date</h3>
+          <button class="btn-sm btn-primary" onclick="printReport()"><i data-lucide="printer"></i> Print</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Bill No.</th><th>Customer</th><th>Items</th><th>Total</th><th>Staff</th></tr></thead>
+            <tbody id="report-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Part Finder Page ────────────────────────────────────────────────── -->
+    <div class="page hidden" id="page-search">
+      <div class="page-header"><h1 class="page-title">Part Finder</h1></div>
+      <div class="search-fullscreen">
+        <input type="text" id="finder-input" class="finder-input" placeholder="Type part name, number, or rack location..."
+               oninput="debounce(runFinder, 300)()"/>
+        <div class="finder-results" id="finder-results"></div>
+      </div>
+    </div>
+
+  </main><!-- /main-content -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- MODALS                                                                  -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Bike Modal -->
+  <div class="modal-overlay hidden" id="modal-bike">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="bike-modal-title">Add Bike</h2>
+        <button class="modal-close" onclick="closeModal('modal-bike')"><i data-lucide="x"></i></button>
+      </div>
+      <input type="hidden" id="bike-id"/>
+      <div class="modal-grid">
+        <div class="field"><label>Bike Name *</label><input type="text" id="bike-name" placeholder="e.g. Apache RTR 200"/></div>
+        <div class="field"><label>Company *</label><input type="text" id="bike-company" placeholder="e.g. TVS"/></div>
+        <div class="field"><label>Model</label><input type="text" id="bike-model" placeholder="e.g. RTR"/></div>
+        <div class="field"><label>Year</label><input type="number" id="bike-year" placeholder="e.g. 2023"/></div>
+        <div class="field"><label>CC</label><input type="number" id="bike-cc" placeholder="e.g. 200"/></div>
+      </div>
+      <div class="field"><label>Notes</label><textarea id="bike-notes" rows="2" class="modal-textarea" placeholder="Optional notes..."></textarea></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-bike')">Cancel</button>
+        <button class="btn-primary" onclick="saveBike()">Save Bike</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part Modal -->
+  <div class="modal-overlay hidden" id="modal-part">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="part-modal-title">Add Part</h2>
+        <button class="modal-close" onclick="closeModal('modal-part')"><i data-lucide="x"></i></button>
+      </div>
+      <input type="hidden" id="part-id"/>
+      <div class="modal-grid-3">
+        <div class="field"><label>Part Name *</label><input type="text" id="part-name" placeholder="e.g. Piston Ring"/></div>
+        <div class="field"><label>Part Number</label><input type="text" id="part-number" placeholder="e.g. TVS-0012"/></div>
+        <div class="field"><label>Bike</label>
+          <select id="part-bike" class="modal-select"><option value="">Select Bike</option></select>
+        </div>
+        <div class="field"><label>Category</label>
+          <select id="part-category" class="modal-select"><option value="">Select Category</option></select>
+        </div>
+        <div class="field"><label>Subcategory</label><input type="text" id="part-subcategory" placeholder="e.g. Cylinder"/></div>
+        <div class="field"><label>Rack</label><input type="text" id="part-rack" placeholder="e.g. R2"/></div>
+        <div class="field"><label>Shelf</label><input type="text" id="part-shelf" placeholder="e.g. S3"/></div>
+        <div class="field"><label>Box</label><input type="text" id="part-box" placeholder="e.g. B1"/></div>
+        <div class="field"><label>Quantity</label><input type="number" id="part-qty" placeholder="0" min="0"/></div>
+        <div class="field"><label>Min Quantity</label><input type="number" id="part-minqty" placeholder="5" min="0"/></div>
+        <div class="field"><label>Price (₹)</label><input type="number" id="part-price" placeholder="0.00" step="0.01"/></div>
+        <div class="field"><label>Supplier</label><input type="text" id="part-supplier" placeholder="Supplier name"/></div>
+      </div>
+      <div class="field"><label>Notes</label><textarea id="part-notes" rows="2" class="modal-textarea" placeholder="Optional notes..."></textarea></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-part')">Cancel</button>
+        <button class="btn-primary" onclick="savePart()">Save Part</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Qty Modal -->
+  <div class="modal-overlay hidden" id="modal-qty">
+    <div class="modal" style="max-width:340px">
+      <div class="modal-header">
+        <h2>Update Quantity</h2>
+        <button class="modal-close" onclick="closeModal('modal-qty')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="field" style="margin:1rem 0">
+        <label id="qty-part-name">Part Name</label>
+        <input type="hidden" id="qty-part-id"/>
+        <input type="number" id="qty-value" min="0" placeholder="New quantity"/>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-qty')">Cancel</button>
+        <button class="btn-primary" onclick="saveQty()">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bill Detail Modal -->
+  <div class="modal-overlay hidden" id="modal-bill-detail">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="bill-detail-title">Bill Details</h2>
+        <button class="modal-close" onclick="closeModal('modal-bill-detail')"><i data-lucide="x"></i></button>
+      </div>
+      <div id="bill-detail-content"></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-bill-detail')">Close</button>
+        <button class="btn-primary" onclick="printBillDetail()"><i data-lucide="printer"></i> Print</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Invoice (hidden, for print only) -->
+  <div id="invoice-print" class="hidden"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
