@@ -26,24 +26,7 @@ app.use(helmet({
 }));
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-const allowedOrigins = [
-  'https://tvs-parts-ms.vercel.app',
-  'https://tvs-parts-ms.onrender.com',
-  'https://tvs-parts-eymr4i22r-mukulkumbhars-projects.vercel.app',
-  process.env.FRONTEND_URL,
-  'http://localhost:3000',
-  'http://localhost:5500',
-  'http://127.0.0.1:5500',
-  'http://127.0.0.1:3000'
-].filter(Boolean);
-
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-    cb(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
+app.use(cors());
 
 // ── Body Parsers ──────────────────────────────────────────────────────────────
 app.use(express.json());
