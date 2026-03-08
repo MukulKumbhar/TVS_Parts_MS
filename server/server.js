@@ -1,6 +1,3 @@
-// ─── server/server.js ────────────────────────────────────────────────────────
-// Express app entry point — all routes mounted here
-// ─────────────────────────────────────────────────────────────────────────────
 require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
@@ -17,15 +14,13 @@ const { verifyToken } = require('./middleware/auth');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// Trust proxy — required for Render deployment
+// Trust proxy — required for Render
 app.set('trust proxy', 1);
 
 // ── Security Headers ──────────────────────────────────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: false // Disabled so CDN scripts load on frontend
-}));
+app.use(helmet({ contentSecurityPolicy: false }));
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
+// ── CORS — Allow ALL origins ──────────────────────────────────────────────────
 app.use(cors());
 
 // ── Body Parsers ──────────────────────────────────────────────────────────────
@@ -35,7 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 // ── Serve Static Frontend ─────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, '../public')));
 
-// ── Health Check (UptimeRobot pings this) ─────────────────────────────────────
+// ── Health Check ──────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date() }));
 
 // ── API Routes ────────────────────────────────────────────────────────────────
