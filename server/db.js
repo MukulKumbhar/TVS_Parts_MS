@@ -11,6 +11,8 @@ const pool = new Pool({
 pool.connect((err, client, release) => {
   if (err) {
     console.error('❌ Database connection error:', err.message);
+    console.error('❌ Full error:', JSON.stringify(err));
+    console.error('❌ DATABASE_URL value:', process.env.DATABASE_URL);
   } else {
     console.log('✅ Connected to PostgreSQL (Supabase)');
     release();
