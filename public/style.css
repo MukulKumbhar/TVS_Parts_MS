@@ -374,17 +374,29 @@ input[type="date"], select, textarea {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
   background: #fff; border: 1.5px solid var(--border);
   border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-  max-height: 260px; overflow-y: auto; display: none;
+  max-height: 400px; overflow-y: auto; display: none;
 }
 .dropdown-item {
-  padding: .65rem 1rem; cursor: pointer;
+  padding: .75rem 1rem;
+  cursor: pointer;
   border-bottom: 1px solid #F1F5F9;
   transition: background .15s;
+  display: flex;
+  flex-direction: column;
 }
 .dropdown-item:hover { background: #EFF6FF; }
 .dropdown-item:last-child { border-bottom: none; }
-.dropdown-item-name { font-weight: 600; color: var(--text-h); font-size: .875rem; }
-.dropdown-item-meta { font-size: .75rem; color: var(--text-m); margin-top: 1px; }
+.dropdown-item-name {
+  font-weight: 700;
+  color: var(--text-h);
+  font-size: .9rem;
+}
+.dropdown-item-meta {
+  font-size: .78rem;
+  color: var(--text-m);
+  margin-top: 3px;
+}
+
 
 /* ── Part Finder ───────────────────────────────────────────────────────────── */
 .search-fullscreen { max-width: 720px; margin: 0 auto; }
@@ -477,4 +489,13 @@ input[type="date"], select, textarea {
 
 @media (max-width: 480px) {
   .stat-grid { grid-template-columns: 1fr; }
+}
+
+.dropdown-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-list::-webkit-scrollbar-thumb {
+  background: #CBD5F5;
+  border-radius: 10px;
 }
