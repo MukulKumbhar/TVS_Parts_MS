@@ -17,6 +17,9 @@ const { verifyToken } = require('./middleware/auth');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy — required for Render deployment
+app.set('trust proxy', 1);
+
 // ── Security Headers ──────────────────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: false // Disabled so CDN scripts load on frontend
@@ -25,10 +28,7 @@ app.use(helmet({
 // ── CORS ──────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  'https://tvs-parts-ms.vercel.app',
-  'https://tvs-parts-ms.onrender.com',
-  'http://localhost:3000',
-  'http://localhost:5500',
+  'http://localhost:5500',  // Local dev (Live Server)
   'http://127.0.0.1:5500'
 ].filter(Boolean);
 
