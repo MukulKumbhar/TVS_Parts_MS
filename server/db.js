@@ -3,6 +3,7 @@
 // Connects to Supabase via DATABASE_URL environment variable
 // ─────────────────────────────────────────────────────────────────────────────
 require('dotenv').config();
+console.log('DB URL:', process.env.DATABASE_URL?.slice(0, 40));g
 const { Pool } = require('pg');
 
 const pool = new Pool({
